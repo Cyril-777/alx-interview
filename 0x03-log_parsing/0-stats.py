@@ -25,7 +25,7 @@ try:
             count += 1
 
         if count == 10:
-            count = 0 
+            count = 0
             print('File size: {}'.format(total_size))
 
             for key, value in sorted(status_codes.items()):
