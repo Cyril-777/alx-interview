@@ -11,21 +11,32 @@ count = 0
 
 try:
     for line in sys.stdin:
-        count += 1
-        data = line.split()
-        if len(data) > 2:
-            if data[-2] in status_codes:
-                status_codes[data[-2]] += 1
-            total_size += int(data[-1])
+        line_list = line.split(" ")
+
+        if len(line_list) > 4:
+            x = line_list[-2]
+            file_size = int(line_list[-1])
+
+            # increasing the count
+            if x in status_codes.keys():
+                status_codes[x] += 1
+
+            total_size += file_size
+            count += 1
+
         if count == 10:
-            print("File size: {}".format(total_size))
+            count = 0 
+            print('File size: {}'.format(total_size))
+
             for key, value in sorted(status_codes.items()):
                 if value != 0:
-                    print("{}: {}".format(key, value))
-            count = 0
-except KeyboardInterrupt:
-    print("File size: {}".format(total_size))
+                    print('{}: {}'.format(key, value))
+
+except Exception as err:
+    pass
+
+finally:
+    print('File size: {}'.format(total_size))
     for key, value in sorted(status_codes.items()):
         if value != 0:
-            print("{}: {}".format(key, value))
-    raise
+            print('{}: {}'.format(key, value))
