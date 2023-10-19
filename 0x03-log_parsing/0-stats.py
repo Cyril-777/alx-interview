@@ -3,40 +3,35 @@
 A script that reads stdin line by line and computes metrics
 """
 import sys
+from collections import defaultdict
 
-status_codes = {"200": 0, "301": 0, "400": 0, "401": 0,
-                "403": 0, "404": 0, "405": 0, "500": 0}
 total_size = 0
-count = 0
+status_counts = defaultdict(int)
 
-try:
-    for line in sys.stdin:
-        line_list = line.split(" ")
+for line in sys.stdin:
+    parts = line.split()
+    if len(parts) != 10:
+        continue
 
-        if len(line_list) > 4:
-            x = line_list[-2]
-            file_size = int(line_list[-1])
+    ip, date, request, status, size = parts[0], parts[1],
+    parts[2], parts[3], parts[7]
 
-            # increasing the count
-            if x in status_codes.keys():
-                status_codes[x] += 1
+    try:
+        size = int(size)
+    except ValueError:
+        continue
 
-            total_size += file_size
-            count += 1
+    total_size += size
+    status_counts[status] += 1
 
-        if count == 10:
-            count = 0
-            print('File size: {}'.format(total_size))
+    if not sys.stdin.isatty() and len(status_counts) % 10 == 0:
+        print(f"File size: {total_size}")
+        for status in sorted(status_counts.keys()):
+            if status.isdigit():
+                print(f"{status}: {status_counts[status]}")
 
-            for key, value in sorted(status_codes.items()):
-                if value != 0:
-                    print('{}: {}'.format(key, value))
-
-except Exception as err:
-    pass
-
-finally:
-    print('File size: {}'.format(total_size))
-    for key, value in sorted(status_codes.items()):
-        if value != 0:
-            print('{}: {}'.format(key, value))
+if not sys.stdin.isatty():
+    print(f"File size: {total_size}")
+    for status in sorted(status_counts.keys()):
+        if status.isdigit():
+            print(f"{status}: {status_counts[status]}")
